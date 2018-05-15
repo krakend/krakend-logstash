@@ -62,9 +62,11 @@ func (l Logger) format(logLevel LogLevel, v ...interface{}) ([]byte, error) {
 	if !ok {
 		return []byte{}, ErrNothingToLog
 	}
-	record, ok := v[1].(map[string]interface{})
-	if !ok {
-		record = map[string]interface{}{}
+	record := map[string]interface{}{}
+	if len(v) > 1 {
+		if r, ok := v[1].(map[string]interface{}); ok {
+			record = r
+		}
 	}
 	record["@version"] = 1
 	record["@timestamp"] = time.Now().Format("2006-01-02T15:04:05.000000-07:00")
