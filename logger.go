@@ -1,4 +1,4 @@
-//Package gologging provides a logger implementation based on the github.com/op/go-logging pkg
+//Package logstsash provides a logstash formatter for the krakend-gologging pkg
 package logstsash
 
 import (
@@ -16,6 +16,7 @@ import (
 var (
 	ErrNothingToLog = errors.New("nothing to log")
 	hostname        = "localhost"
+	loggingPattern  = "%{message}"
 )
 
 func init() {
@@ -28,7 +29,7 @@ func init() {
 // NewLogger returns a krakend logger wrapping a gologging logger
 func NewLogger(cfg config.ExtraConfig, ws ...io.Writer) (*Logger, error) {
 	serviceName := "KRAKEND"
-	gologging.LoggingPattern = "%{message}"
+	gologging.LoggingPattern = loggingPattern
 	if tmp, ok := cfg[gologging.Namespace]; ok {
 		if section, ok := tmp.(map[string]interface{}); ok {
 			if tmp, ok = section["prefix"]; ok {
@@ -54,6 +55,8 @@ type Logger struct {
 	serviceName string
 }
 
+var now = time.Now
+
 func (l Logger) format(logLevel LogLevel, v ...interface{}) ([]byte, error) {
 	if len(v) == 0 {
 		return []byte{}, ErrNothingToLog
@@ -69,7 +72,7 @@ func (l Logger) format(logLevel LogLevel, v ...interface{}) ([]byte, error) {
 		}
 	}
 	record["@version"] = 1
-	record["@timestamp"] = time.Now().Format("2006-01-02T15:04:05.000000-07:00")
+	record["@timestamp"] = now().Format(ISO_8601)
 	record["module"] = l.serviceName
 	record["host"] = hostname
 	record["message"] = msg
@@ -140,4 +143,6 @@ const (
 	LEVEL_WARNING  = "WARNING"
 	LEVEL_ERROR    = "ERROR"
 	LEVEL_CRITICAL = "CRITICAL"
+
+	ISO_8601 = "2006-01-02T15:04:05.000000-07:00"
 )
