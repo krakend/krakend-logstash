@@ -48,17 +48,10 @@ func TestLogger_nothingToLog(t *testing.T) {
 	}
 
 	logger.Debug()
-	logger.Debug(42)
 	logger.Info()
-	logger.Info(42)
 	logger.Warning()
-	logger.Warning(42)
 	logger.Error()
-	logger.Error(42)
 	logger.Critical()
-	logger.Critical(42)
-	logger.Fatal()
-	logger.Fatal(42)
 
 	if content := buff.String(); content != "" {
 		t.Errorf("unexpected log content: %s", content)
@@ -167,3 +160,61 @@ func TestLogger_format(t *testing.T) {
 		}
 	}
 }
+
+func TestLogger_format_unexpectedMessageType(t *testing.T) {
+	buff := new(bytes.Buffer)
+	l, _ := logging.NewLogger(LEVEL_DEBUG, buff, "")
+	logger := Logger{
+		logger:      l,
+		serviceName: "some",
+	}
+
+	location, _ := time.LoadLocation("")
+	now = func() time.Time {
+		return time.Unix(1526464967, 0).In(location)
+	}
+	defer func() { now = time.Now }()
+
+	for i, testCase := range []struct {
+		Expected string
+		Values   []interface{}
+	}{
+		{
+			Expected: `{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"host":"localhost","level":"DEBUG","message":"42","module":"some"}`,
+			Values:   []interface{}{42},
+		},
+		{
+			Expected: `{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"a":1,"host":"localhost","level":"DEBUG","message":"42","module":"some"}`,
+			Values:   []interface{}{42, map[string]interface{}{"a": 1}},
+		},
+		{
+			Expected: `{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"host":"localhost","level":"DEBUG","logstsash.sample":{"A":1},"message":"42","module":"some"}`,
+			Values:   []interface{}{42, sample{A: 1}},
+		},
+		{
+			Expected: `{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"host":"localhost","level":"DEBUG","message":"hey there multi parts","module":"some"}`,
+			Values:   []interface{}{"hey", "there", "multi", "parts"},
+		},
+		{
+			Expected: `{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"host":"localhost","level":"DEBUG","message":"true 3 1.100000 basic types true","module":"some"}`,
+			Values:   []interface{}{true, 3, 1.1, "basic types", true},
+		},
+		{
+			Expected: `{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"host":"localhost","level":"DEBUG","logstsash.sample":{"A":1},"message":"true 3 1.100000 basic types true","module":"some"}`,
+			Values:   []interface{}{true, 3, sample{A: 1}, 1.1, "basic types", true},
+		},
+	} {
+		data, err := logger.format(LEVEL_DEBUG, testCase.Values...)
+		if err != nil {
+			t.Errorf("unexpected error (#%d): %s", i, err.Error())
+			continue
+		}
+
+		if string(data) != testCase.Expected {
+			t.Errorf("unexpected result (#%d). Have: %s, Want: %s", i, string(data), testCase.Expected)
+		}
+	}
+
+}
+
+type sample struct{ A int }

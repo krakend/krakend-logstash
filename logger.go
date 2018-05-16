@@ -4,6 +4,7 @@ package logstsash
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"time"
@@ -57,20 +58,37 @@ type Logger struct {
 
 var now = time.Now
 
-func (l Logger) format(logLevel LogLevel, v ...interface{}) ([]byte, error) {
+func (l *Logger) format(logLevel LogLevel, v ...interface{}) ([]byte, error) {
 	if len(v) == 0 {
 		return []byte{}, ErrNothingToLog
 	}
+
 	msg, ok := v[0].(string)
 	if !ok {
-		return []byte{}, ErrNothingToLog
+		msg = fmt.Sprintf("%+v", v[0])
 	}
 	record := map[string]interface{}{}
 	if len(v) > 1 {
-		if r, ok := v[1].(map[string]interface{}); ok {
-			record = r
+		for _, ctx := range v[1:] {
+			switch value := ctx.(type) {
+			case map[string]interface{}:
+				for k, item := range value {
+					record[k] = item
+				}
+			case int:
+				msg = fmt.Sprintf("%s %d", msg, value)
+			case bool:
+				msg = fmt.Sprintf("%s %t", msg, value)
+			case float64:
+				msg = fmt.Sprintf("%s %f", msg, value)
+			case string:
+				msg += " " + value
+			default:
+				record[fmt.Sprintf("%T", ctx)] = ctx
+			}
 		}
 	}
+
 	record["@version"] = 1
 	record["@timestamp"] = now().Format(ISO_8601)
 	record["module"] = l.serviceName
@@ -82,7 +100,7 @@ func (l Logger) format(logLevel LogLevel, v ...interface{}) ([]byte, error) {
 }
 
 // Debug implements the logger interface
-func (l Logger) Debug(v ...interface{}) {
+func (l *Logger) Debug(v ...interface{}) {
 	data, err := l.format(LEVEL_DEBUG, v...)
 	if err != nil {
 		return
@@ -91,7 +109,7 @@ func (l Logger) Debug(v ...interface{}) {
 }
 
 // Info implements the logger interface
-func (l Logger) Info(v ...interface{}) {
+func (l *Logger) Info(v ...interface{}) {
 	data, err := l.format(LEVEL_INFO, v...)
 	if err != nil {
 		return
@@ -100,7 +118,7 @@ func (l Logger) Info(v ...interface{}) {
 }
 
 // Warning implements the logger interface
-func (l Logger) Warning(v ...interface{}) {
+func (l *Logger) Warning(v ...interface{}) {
 	data, err := l.format(LEVEL_WARNING, v...)
 	if err != nil {
 		return
@@ -109,7 +127,7 @@ func (l Logger) Warning(v ...interface{}) {
 }
 
 // Error implements the logger interface
-func (l Logger) Error(v ...interface{}) {
+func (l *Logger) Error(v ...interface{}) {
 	data, err := l.format(LEVEL_ERROR, v...)
 	if err != nil {
 		return
@@ -118,7 +136,7 @@ func (l Logger) Error(v ...interface{}) {
 }
 
 // Critical implements the logger interface
-func (l Logger) Critical(v ...interface{}) {
+func (l *Logger) Critical(v ...interface{}) {
 	data, err := l.format(LEVEL_CRITICAL, v...)
 	if err != nil {
 		return
@@ -127,7 +145,7 @@ func (l Logger) Critical(v ...interface{}) {
 }
 
 // Fatal implements the logger interface
-func (l Logger) Fatal(v ...interface{}) {
+func (l *Logger) Fatal(v ...interface{}) {
 	data, err := l.format(LEVEL_CRITICAL, v...)
 	if err != nil {
 		return
