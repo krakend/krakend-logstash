@@ -12,6 +12,7 @@ import (
 	"github.com/devopsfaith/krakend-gologging"
 	"github.com/devopsfaith/krakend/config"
 	"github.com/devopsfaith/krakend/logging"
+	"github.com/devopsfaith/krakend/proxy"
 )
 
 var (
@@ -83,6 +84,10 @@ func (l *Logger) format(logLevel LogLevel, v ...interface{}) ([]byte, error) {
 				msg = fmt.Sprintf("%s %f", msg, value)
 			case string:
 				msg += " " + value
+			case *proxy.Request:
+				record["proxy.Request"] = value
+			case *proxy.Response:
+				record["proxy.Response"] = value
 			default:
 				record[fmt.Sprintf("%T", ctx)] = ctx
 			}
