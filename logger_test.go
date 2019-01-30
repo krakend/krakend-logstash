@@ -1,4 +1,4 @@
-package logstsash
+package logstash
 
 import (
 	"bytes"
@@ -188,7 +188,7 @@ func TestLogger_format_unexpectedMessageType(t *testing.T) {
 			Values:   []interface{}{42, map[string]interface{}{"a": 1}},
 		},
 		{
-			Expected: `{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"host":"localhost","level":"DEBUG","logstsash.sample":{"A":1},"message":"42","module":"some"}`,
+			Expected: `{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"host":"localhost","level":"DEBUG","logstash.sample":{"A":1},"message":"42","module":"some"}`,
 			Values:   []interface{}{42, sample{A: 1}},
 		},
 		{
@@ -200,7 +200,7 @@ func TestLogger_format_unexpectedMessageType(t *testing.T) {
 			Values:   []interface{}{true, 3, 1.1, "basic types", true},
 		},
 		{
-			Expected: `{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"host":"localhost","level":"DEBUG","logstsash.sample":{"A":1},"message":"true 3 1.100000 basic types true","module":"some"}`,
+			Expected: `{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"host":"localhost","level":"DEBUG","logstash.sample":{"A":1},"message":"true 3 1.100000 basic types true","module":"some"}`,
 			Values:   []interface{}{true, 3, sample{A: 1}, 1.1, "basic types", true},
 		},
 	} {
