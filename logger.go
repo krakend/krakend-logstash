@@ -1,5 +1,5 @@
-//Package logstsash provides a logstash formatter for the krakend-gologging pkg
-package logstsash
+//Package logstash provides a logstash formatter for the krakend-gologging pkg
+package logstash
 
 import (
 	"encoding/json"
@@ -15,8 +15,11 @@ import (
 	"github.com/devopsfaith/krakend/proxy"
 )
 
+const Namespace = "github_com/devopsfaith/krakend-logstash"
+
 var (
 	ErrNothingToLog = errors.New("nothing to log")
+	ErrWrongConfig  = fmt.Errorf("getting the extra config for the krakend-logstash module")
 	hostname        = "localhost"
 	loggingPattern  = "%{message}"
 )
@@ -29,9 +32,13 @@ func init() {
 }
 
 // NewLogger returns a krakend logger wrapping a gologging logger
-func NewLogger(cfg config.ExtraConfig, ws ...io.Writer) (*Logger, error) {
+func NewLogger(cfg config.ExtraConfig, ws ...io.Writer) (logging.Logger, error) {
+	_, ok := cfg[Namespace]
+	if !ok {
+		return nil, ErrWrongConfig
+	}
 	serviceName := "KRAKEND"
-	gologging.LoggingPattern = loggingPattern
+	gologging.DefaultPattern = loggingPattern
 	if tmp, ok := cfg[gologging.Namespace]; ok {
 		if section, ok := tmp.(map[string]interface{}); ok {
 			if tmp, ok = section["prefix"]; ok {
