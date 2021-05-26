@@ -3,17 +3,15 @@ package logstash
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"math"
 	"reflect"
-	"regexp"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/devopsfaith/krakend-gologging"
-	"github.com/devopsfaith/krakend/config"
-	"github.com/devopsfaith/krakend/logging"
+	gologging "github.com/devopsfaith/krakend-gologging"
+	"github.com/luraproject/lura/config"
+	"github.com/luraproject/lura/logging"
 )
 
 func TestNewLogger(t *testing.T) {
@@ -29,6 +27,7 @@ func TestNewLogger(t *testing.T) {
 			"prefix": "module_name",
 			"stdout": true,
 		},
+		Namespace: nil,
 	}
 	logger, err = NewLogger(cfg)
 	if err != nil {
@@ -80,16 +79,14 @@ func TestLogger(t *testing.T) {
 	logger.Error(expectedMsg, map[string]interface{}{"a": true, "b": false, "cost": 42})
 	logger.Critical(expectedMsg, map[string]interface{}{"a": true, "b": false, "cost": 42})
 
-	pattern := regexp.MustCompile("([A-Z]): ({.*})")
-
-	fmt.Println("log content:")
 	lines := strings.Split(buff.String(), "\n")
 	if len(lines) < 5 {
 		t.Errorf("unexpected number of logged lines (%d) : %s", len(lines), buff.String())
 		return
 	}
+	levels := []string{"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
 	for line, logLine := range lines[:5] {
-		if !pattern.MatchString(logLine) {
+		if logLine[20:] == levels[line]+`: [{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"a":true,"b":false,"cost":42,"host":"localhost","level":"`+levels[line]+`","message":"mayday, mayday, mayday","module":"module_name"}]]` {
 			t.Errorf("The output doesn't contain the expected msg for the line %d: [%s]", line, logLine)
 		}
 	}
@@ -104,6 +101,7 @@ func TestLogger_format(t *testing.T) {
 			"prefix": expectedModuleName,
 			"stdout": true,
 		},
+		Namespace: nil,
 	}
 	logger, err := NewLogger(cfg)
 	if err != nil {
@@ -124,7 +122,7 @@ func TestLogger_format(t *testing.T) {
 		LEVEL_ERROR,
 		LEVEL_CRITICAL,
 	} {
-		data, err := logger.format(logLevel, expectedMsg, map[string]interface{}{"a": true, "b": false, "cost": 42})
+		data, err := logger.(*Logger).format(logLevel, expectedMsg, map[string]interface{}{"a": true, "b": false, "cost": 42})
 		if err != nil {
 			t.Errorf("unexpected error runing test case #%d: %s", i, err.Error())
 			continue
