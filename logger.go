@@ -9,10 +9,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/devopsfaith/krakend-gologging"
-	"github.com/devopsfaith/krakend/config"
-	"github.com/devopsfaith/krakend/logging"
-	"github.com/devopsfaith/krakend/proxy"
+	gologging "github.com/devopsfaith/krakend-gologging"
+	"github.com/luraproject/lura/config"
+	"github.com/luraproject/lura/logging"
+	"github.com/luraproject/lura/proxy"
 )
 
 const Namespace = "github_com/devopsfaith/krakend-logstash"
