@@ -3,7 +3,7 @@ module github.com/krakendio/krakend-logstash/v2
 go 1.17
 
 require (
-	github.com/devopsfaith/krakend-gologging/v2 v2.0.0
+	github.com/krakendio/krakend-gologging/v2 v2.0.0
 	github.com/luraproject/lura/v2 v2.0.0
 )
 
