@@ -212,7 +212,6 @@ func TestLogger_format_unexpectedMessageType(t *testing.T) {
 			t.Errorf("unexpected result (#%d). Have: %s, Want: %s", i, string(data), testCase.Expected)
 		}
 	}
-
 }
 
 type sample struct{ A int }
