@@ -1,14 +1,14 @@
-module github.com/devopsfaith/krakend-logstash/v2
+module github.com/krakendio/krakend-logstash/v2
 
 go 1.17
 
 require (
-	github.com/devopsfaith/krakend-gologging/v2 v2.0.0
-	github.com/luraproject/lura/v2 v2.0.0
+	github.com/krakendio/krakend-gologging/v2 v2.0.0-20220601173040-76719e203514
+	github.com/luraproject/lura/v2 v2.0.0-20220601150625-abb94fb9730d
 )
 
 require (
-	github.com/devopsfaith/flatmap v0.0.0-20200601181759-8521186182fc // indirect
+	github.com/krakendio/flatmap v0.0.0-20220531185225-4cb0ad6fbedd // indirect
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7 // indirect
 	github.com/valyala/fastrand v1.1.0 // indirect
 )

@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	gologging "github.com/devopsfaith/krakend-gologging/v2"
+	gologging "github.com/krakendio/krakend-gologging/v2"
 	"github.com/luraproject/lura/v2/config"
 	"github.com/luraproject/lura/v2/logging"
 )
