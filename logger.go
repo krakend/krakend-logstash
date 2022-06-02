@@ -1,4 +1,4 @@
-//Package logstash provides a logstash formatter for the krakend-gologging pkg
+// Package logstash provides a logstash formatter for the krakend-gologging pkg
 package logstash
 
 import (
