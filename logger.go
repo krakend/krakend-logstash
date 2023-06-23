@@ -38,7 +38,7 @@ func NewLogger(cfg config.ExtraConfig, ws ...io.Writer) (logging.Logger, error) 
 		return nil, ErrWrongConfig
 	}
 	serviceName := "KRAKEND"
-	gologging.DefaultPattern = loggingPattern
+	gologging.ActivePattern = loggingPattern
 	if tmp, ok := cfg[gologging.Namespace]; ok {
 		if section, ok := tmp.(map[string]interface{}); ok {
 			if tmp, ok = section["prefix"]; ok {
