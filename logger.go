@@ -26,7 +26,7 @@ var (
 
 func init() {
 	name, err := os.Hostname()
-	if err != nil {
+	if err == nil {
 		hostname = name
 	}
 }
