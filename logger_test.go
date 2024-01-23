@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"math"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -133,6 +134,12 @@ func TestLogger_format(t *testing.T) {
 			continue
 		}
 
+		expectedHostname, err := os.Hostname()
+		if err != nil {
+			t.Errorf("failed to get hostname runing test case #%d: %s", i, err.Error())
+			continue
+		}
+
 		expectedMessage := map[string]interface{}{
 			"a":          true,
 			"b":          false,
@@ -140,7 +147,7 @@ func TestLogger_format(t *testing.T) {
 			"@version":   1.0,
 			"@timestamp": "2018-05-16T10:02:47.000000+00:00",
 			"module":     expectedModuleName,
-			"host":       "localhost",
+			"host":       expectedHostname,
 			"message":    expectedMsg,
 			"level":      string(logLevel),
 		}
@@ -173,32 +180,38 @@ func TestLogger_format_unexpectedMessageType(t *testing.T) {
 	}
 	defer func() { now = time.Now }()
 
+	expectedHostname, err := os.Hostname()
+	if err != nil {
+		t.Errorf("failed to get hostname: %s", err.Error())
+		return
+	}
+
 	for i, testCase := range []struct {
 		Expected string
 		Values   []interface{}
 	}{
 		{
-			Expected: `{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"host":"localhost","level":"DEBUG","message":"42","module":"some"}`,
+			Expected: `{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"host":"` + expectedHostname + `","level":"DEBUG","message":"42","module":"some"}`,
 			Values:   []interface{}{42},
 		},
 		{
-			Expected: `{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"a":1,"host":"localhost","level":"DEBUG","message":"42","module":"some"}`,
+			Expected: `{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"a":1,"host":"` + expectedHostname + `","level":"DEBUG","message":"42","module":"some"}`,
 			Values:   []interface{}{42, map[string]interface{}{"a": 1}},
 		},
 		{
-			Expected: `{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"host":"localhost","level":"DEBUG","logstash.sample":{"A":1},"message":"42","module":"some"}`,
+			Expected: `{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"host":"` + expectedHostname + `","level":"DEBUG","logstash.sample":{"A":1},"message":"42","module":"some"}`,
 			Values:   []interface{}{42, sample{A: 1}},
 		},
 		{
-			Expected: `{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"host":"localhost","level":"DEBUG","message":"hey there multi parts","module":"some"}`,
+			Expected: `{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"host":"` + expectedHostname + `","level":"DEBUG","message":"hey there multi parts","module":"some"}`,
 			Values:   []interface{}{"hey", "there", "multi", "parts"},
 		},
 		{
-			Expected: `{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"host":"localhost","level":"DEBUG","message":"true 3 1.100000 basic types true","module":"some"}`,
+			Expected: `{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"host":"` + expectedHostname + `","level":"DEBUG","message":"true 3 1.100000 basic types true","module":"some"}`,
 			Values:   []interface{}{true, 3, 1.1, "basic types", true},
 		},
 		{
-			Expected: `{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"host":"localhost","level":"DEBUG","logstash.sample":{"A":1},"message":"true 3 1.100000 basic types true","module":"some"}`,
+			Expected: `{"@timestamp":"2018-05-16T10:02:47.000000+00:00","@version":1,"host":"` + expectedHostname + `","level":"DEBUG","logstash.sample":{"A":1},"message":"true 3 1.100000 basic types true","module":"some"}`,
 			Values:   []interface{}{true, 3, sample{A: 1}, 1.1, "basic types", true},
 		},
 	} {
