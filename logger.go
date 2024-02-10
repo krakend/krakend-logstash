@@ -2,6 +2,7 @@
 package logstash
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -108,7 +109,19 @@ func (l *Logger) format(logLevel LogLevel, v ...interface{}) ([]byte, error) {
 	record["message"] = msg
 	record["level"] = logLevel
 
-	return json.Marshal(record)
+	return marshalRecord(record)
+}
+
+func marshalRecord(record map[string]interface{}) ([]byte, error) {
+	buf := &bytes.Buffer{}
+	enc := json.NewEncoder(buf)
+	enc.SetEscapeHTML(false)
+
+	if err := enc.Encode(record); err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
 }
 
 // Debug implements the logger interface
