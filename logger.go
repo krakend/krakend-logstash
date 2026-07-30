@@ -9,13 +9,13 @@ import (
 	"os"
 	"time"
 
-	gologging "github.com/krakend/krakend-gologging/v2"
-	"github.com/luraproject/lura/v2/config"
-	"github.com/luraproject/lura/v2/logging"
-	"github.com/luraproject/lura/v2/proxy"
+	gologging "github.com/krakend/krakend-gologging/v3"
+	"github.com/luraproject/lura/v3/config"
+	"github.com/luraproject/lura/v3/logging"
+	"github.com/luraproject/lura/v3/proxy"
 )
 
-const Namespace = "github_com/devopsfaith/krakend-logstash"
+const Namespace = "telemetry/logstash"
 
 var (
 	ErrNothingToLog = errors.New("nothing to log")
@@ -70,7 +70,7 @@ func NewLogger(cfg config.ExtraConfig, ws ...io.Writer) (logging.Logger, error) 
 	return &Logger{loggr, serviceName}, nil
 }
 
-// Logger is a wrapper over a github.com/devopsfaith/krakend/logging logger
+// Logger is a wrapper over a github.com/luraproject/lura/logging logger
 type Logger struct {
 	logger      logging.Logger
 	serviceName string
