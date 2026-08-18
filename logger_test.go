@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	gologging "github.com/krakend/krakend-gologging/v2"
-	"github.com/luraproject/lura/v2/config"
-	"github.com/luraproject/lura/v2/logging"
+	gologging "github.com/krakend/krakend-gologging/v3"
+	"github.com/luraproject/lura/v3/config"
+	"github.com/luraproject/lura/v3/logging"
 )
 
 func TestNewLogger(t *testing.T) {
